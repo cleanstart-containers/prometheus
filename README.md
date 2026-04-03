@@ -4,60 +4,72 @@ The CleanStart Prometheus image provides a production-ready, security-hardened c
 
 📌 **Base Foundation**: Production-ready container from cleanstart.
 
-**Image Path**: `public.ecr.aws/your-alias/prometheus`
+**Image Path**: `ghcr.io/cleanstart-containers/prometheus`
+
 **Registry**: cleanstart Registry
-
-## Key Features
-Core capabilities and strengths of this container
-
-
-
-## Common Use Cases
-Typical scenarios where this container excels
-
-
 
 ## Pull Latest Image
 Download the container image from the registry
 
 ```bash
-docker pull public.ecr.aws/your-alias/prometheus:prometheus
+docker pull ghcr.io/cleanstart-containers/prometheus:latest
 ```
 ```bash
-docker pull public.ecr.aws/your-alias/prometheus:container
-```
-```bash
-docker pull public.ecr.aws/your-alias/prometheus:enterprise
+docker pull ghcr.io/cleanstart-containers/prometheus:latest-dev
 ```
 
-## Basic Run
-Run the container with basic configuration
+# Basic Run
 
 ```bash
-docker run -it --name prometheus public.ecr.aws/your-alias/prometheus:latest
+docker run -it --name prometheus \
+  --entrypoint sh \
+  ghcr.io/cleanstart-containers/prometheus:latest-dev \
+  -c "mkdir -p /tmp/prometheus && \
+      /usr/bin/prometheus \
+      --config.file=/etc/prometheus/prometheus.yml \
+      --storage.tsdb.path=/tmp/prometheus"
 ```
 
-## Production Deployment
-Deploy with production security settings
+# Production Deployment
 
 ```bash
 docker run -d --name prometheus-prod \
   --security-opt=no-new-privileges \
   --user 1000:1000 \
   --restart unless-stopped \
-  public.ecr.aws/your-alias/prometheus:latest
+  --entrypoint sh \
+  ghcr.io/cleanstart-containers/prometheus:latest-dev \
+  -c "mkdir -p /tmp/prometheus && \
+      /usr/bin/prometheus \
+      --config.file=/etc/prometheus/prometheus.yml \
+      --storage.tsdb.path=/tmp/prometheus"
 ```
 
-Volume Mount Mount local directory for persistent data
+# Volume Mount
+/tmp/prometheus should be executable to run this in local machine
 
 ```bash
-docker run -v /app:/app public.ecr.aws/your-alias/prometheus:latest
+docker run --name prometheus-vol \
+  -v /tmp/prometheus:/tmp/prometheus \
+  --entrypoint sh \
+  ghcr.io/cleanstart-containers/prometheus:latest-dev \
+  -c "mkdir -p /tmp/prometheus && \
+      /usr/bin/prometheus \
+      --config.file=/etc/prometheus/prometheus.yml \
+      --storage.tsdb.path=/tmp/prometheus"
 ```
 
-Port Forwarding Run with custom port mappings
+# Port Forwarding
 
 ```bash
-docker run -p 8080:8080 public.ecr.aws/your-alias/prometheus:latest
+docker run --name prometheus-port \
+  -p 9090:9090 \
+  --entrypoint sh \
+  ghcr.io/cleanstart-containers/prometheus:latest-dev \
+  -c "mkdir -p /tmp/prometheus && \
+      /usr/bin/prometheus \
+      --config.file=/etc/prometheus/prometheus.yml \
+      --storage.tsdb.path=/tmp/prometheus"
 ```
 
 ## Environment Variables
@@ -67,11 +79,6 @@ Configuration options available through environment variables
 |----------|---------|-------------|
 | ENV | production | Environment mode |
 | LOG_LEVEL | info | Logging level |
-
-## Security Best Practices
-Recommended security configurations and practices
-
-
 
 ## Kubernetes Security Context
 Recommended security context for Kubernetes deployments
@@ -92,7 +99,7 @@ Essential links and resources for further information
 
 - **Container Registry**: [https://www.cleanstart.com/](https://www.cleanstart.com/)
 - **CleanStart Community Images**: [https://hub.docker.com/u/cleanstart](https://hub.docker.com/u/cleanstart)
-- **How-to-Run CleanStart images & sample projects**: [https://github.com/cleanstart-dev/cleanstart-containers](https://github.com/cleanstart-dev/cleanstart-containers)
+- **How-to-Run CleanStart images & sample projects**: [https://github.com/cleanstart-containers](https://github.com/cleanstart-containers)
   - How to run sample projects using Dockerfile
   - How to deploy via Kubernetes YAML
   - How to migrate from public images to CleanStart images
